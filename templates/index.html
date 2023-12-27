@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>WebApiFinalProject</title>
+</head>
+
+<body>
+	<div>
+		<h1>Chat with WebSockets & Notifications of CRUD operations</h1>
+		<h3>Your ID: <span id="id"></span></h3>
+		<input type="text" id="input" autocomplete="off" placeholder="write message" />
+        <button onclick="sendMessage(event)">Send userID</button>
+		<ul id="chat"> </ul>
+	</div>
+	<script>
+
+	function appendMessageToTemplate(msg) {
+		let messageList = document.getElementById('chat')
+		let message = document.createElement('li')
+		let text = document.createTextNode(msg)
+		message.appendChild(text)
+		messageList.appendChild(message)
+	}
+
+    function sendMessage(event) {
+		let input = document.getElementById("input")
+        if (input.value) {
+            ws.send(input.value)
+        }
+		input.value = ''
+		event.preventDefault()
+	}
+
+	let client_id = Math.floor(Math.random() * 10000) + 1
+	document.querySelector("#id").textContent = client_id;
+	let ws = new WebSocket(`{{ ws_protocol }}://{{ server_urn }}/ws/${client_id}`);
+
+	ws.onmessage = function(event) {
+		appendMessageToTemplate(event.data)
+	};
+
+    ws.onerror = function (event) {
+        appendMessageToTemplate(`Oops, something went wrong: ${event.data}`)
+    }
+	</script>
+</body>
+
+</html>
